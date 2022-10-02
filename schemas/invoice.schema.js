@@ -5,6 +5,9 @@ const clientId = Joi.number().integer();
 const date = Joi.date();
 const description = Joi.string().min(3).max(30);
 const amount = Joi.number().integer();
+const limit = Joi.number().integer();
+const offset = Joi.number().integer();
+
 
 const linesSchema = Joi.array().items(
   Joi.object({
@@ -29,4 +32,14 @@ const getSchema = Joi.object({
   id: id.required(),
 });
 
-module.exports = { createSchema, updateSchema, getSchema }
+const querySchema = Joi.object({
+  limit,
+  offset,
+  date,
+  clientId: clientId.when('date', {
+    is: Joi.exist(),
+    then: Joi.required(),
+  }),
+});
+
+module.exports = { createSchema, updateSchema, getSchema, querySchema }

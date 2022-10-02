@@ -2,15 +2,16 @@ const express = require('express');
 
 const InvoiceService = require('../services/invoices.service');
 const validatorHandler = require('./../middlewares/validator.handler');
-const { createSchema, updateSchema, getSchema } = require('./../schemas/invoice.schema');
+const { createSchema, updateSchema, getSchema, querySchema } = require('./../schemas/invoice.schema');
 
 const router = express.Router();
 const service = new InvoiceService();
 
 router.get('/',
+  validatorHandler(querySchema, 'query'),
   async (req, res, next) => {
     try {
-      const invoices = await service.find();
+      const invoices = await service.find(req.query);
       res.json(invoices);
     } catch (error) {
       next(error);

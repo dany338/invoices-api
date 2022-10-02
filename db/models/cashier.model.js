@@ -1,15 +1,28 @@
 const { Model, DataTypes, Sequelize } = require('sequelize');
+const { USER_TABLE } = require('./user.model');
 
-const CLIENT_TABLE = 'clients';
+const CASHIER_TABLE = 'cashiers';
 
-const ClientSchema = {
+const CashierSchema = {
   id: {
     allowNull: false,
     autoIncrement: true,
     primaryKey: true,
     type: DataTypes.INTEGER
   },
-  dni: {
+  userId: {
+    field: 'user_id',
+    allowNull: false,
+    type: DataTypes.INTEGER,
+    unique: true,
+    references: {
+      model: USER_TABLE,
+      key: 'id'
+    },
+    onUpdate: 'CASCADE',
+    onDelete: 'SET NULL'
+  },
+  code: {
     allowNull: false,
     type: DataTypes.STRING,
     unique: true,
@@ -36,30 +49,21 @@ const ClientSchema = {
     field: 'updated_at',
     defaultValue: Sequelize.NOW,
   },
-  updatedUser: {
-    allowNull: false,
-    type: DataTypes.INTEGER,
-    field: 'updated_user',
-    defaultValue: 1,
-  },
 }
 
-class Client extends Model {
+class Cashier extends Model {
   static associate(models) {
-    this.hasMany(models.Invoice, {
-      as: 'invoices',
-      foreignKey: 'clientId',
-    });
+    this.belongsTo(models.User, { as: 'user' });
   }
 
   static config(sequelize) {
     return {
       sequelize,
-      tableName: CLIENT_TABLE,
-      modelName: 'Client',
+      tableName: CASHIER_TABLE,
+      modelName: 'Cashier',
       timestamps: false
     }
   }
 }
 
-module.exports = { CLIENT_TABLE, ClientSchema, Client }
+module.exports = { CASHIER_TABLE, CashierSchema, Cashier }

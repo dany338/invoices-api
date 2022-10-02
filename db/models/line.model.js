@@ -1,28 +1,33 @@
 const { Model, DataTypes, Sequelize } = require('sequelize');
+const { INVOICE_TABLE } = require('./client.model');
 
-const CLIENT_TABLE = 'clients';
+const LINE_TABLE = 'lines';
 
-const ClientSchema = {
+const LineSchema = {
   id: {
     allowNull: false,
     autoIncrement: true,
     primaryKey: true,
     type: DataTypes.INTEGER
   },
-  dni: {
-    allowNull: false,
-    type: DataTypes.STRING,
-    unique: true,
+  invoiceId: {
+    allowNull: true,
+    type: DataTypes.INTEGER,
+    field: 'invoice_id',
+    references: {
+      model: INVOICE_TABLE,
+      key: 'id',
+    },
+    onUpdate: 'CASCADE',
+    onDelete: 'SET NULL',
   },
-  firstName: {
+  description: {
     allowNull: false,
     type: DataTypes.STRING,
-    field: 'first_name',
   },
-  lastName: {
+  amount: {
     allowNull: false,
-    type: DataTypes.STRING,
-    field: 'last_name',
+    type: DataTypes.INTEGER,
   },
   createdAt: {
     allowNull: false,
@@ -44,22 +49,19 @@ const ClientSchema = {
   },
 }
 
-class Client extends Model {
+class Line extends Model {
   static associate(models) {
-    this.hasMany(models.Invoice, {
-      as: 'invoices',
-      foreignKey: 'clientId',
-    });
+    this.belongsTo(models.Invoice, { as: 'invoice' });
   }
 
   static config(sequelize) {
     return {
       sequelize,
-      tableName: CLIENT_TABLE,
-      modelName: 'Client',
+      tableName: LINE_TABLE,
+      modelName: 'Line',
       timestamps: false
     }
   }
 }
 
-module.exports = { CLIENT_TABLE, ClientSchema, Client }
+module.exports = { LINE_TABLE, LineSchema, Line }
