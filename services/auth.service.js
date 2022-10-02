@@ -1,22 +1,18 @@
-const boom = require('@hapi/boom');
+const bcrypt = require('bcrypt');
 const { models } = require('../libs/sequelize');
-
-const UserService = require('../services/users.service');
-
-const service = new UserService();
 
 class AuthService {
   constructor() {}
 
   async validatePassword(password, hash) {
-    const rta = await service.validatePassword(password, hash);
-    return rta;
+    return await bcrypt.compare(password, hash);
   }
 
-  async login(data) {
+  async findByEmail(email) {
     const user = await models.User.findOne({
+      attributes: ['id', 'email', 'role', 'createdAt'],
       where: {
-        email: data.email,
+        email,
       },
       include: [
         {
@@ -26,13 +22,6 @@ class AuthService {
         },
       ],
     });
-    if (!user) {
-      throw boom.unauthorized('email or password invalid!');
-    }
-    const validPassword = await this.validatePassword(data.password, user.password);
-    if (!validPassword) {
-      throw boom.unauthorized('email or password invalid!!');
-    }
     return user;
   }
 }
