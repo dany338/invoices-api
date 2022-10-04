@@ -15,6 +15,30 @@ class InvoicesService {
     return invoice;
   }
 
+  async findByUser(userId) {
+    const orders = await models.Invoice.findAll({
+      where: {
+        updatedUser: userId, // '$cashier.user.id$'
+      },
+      include: [
+        {
+          model: models.Client,
+          as: 'client',
+          attributes: ['id', 'name', 'email', 'phone'],
+        },
+        {
+          model: models.Line,
+          as: 'lines',
+          attributes: ['id', 'description', 'amount'],
+        }
+      ],
+      order: [
+        ['id', 'DESC'],
+      ]
+    });
+    return orders;
+  }
+
   async find(query) {
     const options = {
       include: [
