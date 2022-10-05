@@ -64,6 +64,23 @@ class UsersService {
     await user.destroy();
     return { id };
   }
+
+  async findByEmail(email) {
+    const user = await models.User.findOne({
+      attributes: ['id', 'email', 'role', 'createdAt'],
+      where: {
+        email,
+      },
+      include: [
+        {
+          model: models.Cashier,
+          as: 'cashier',
+          attributes: ['id', 'code', 'firstName', 'lastName'],
+        },
+      ],
+    });
+    return user;
+  }
 }
 
 module.exports = UsersService;
