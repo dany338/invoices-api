@@ -4,7 +4,7 @@ const passport = require('passport');
 const ClientService = require('../services/clients.service');
 const validatorHandler = require('./../middlewares/validator.handler');
 const { checkRoles } = require('../middlewares/auth.handler');
-const { createSchema, updateSchema, getSchema } = require('./../schemas/invoice.schema');
+const { createSchema, updateSchema, getSchema } = require('./../schemas/client.schema');
 
 const router = express.Router();
 const service = new ClientService();

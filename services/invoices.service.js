@@ -12,11 +12,12 @@ class InvoicesService {
     if (lines) {
       invoice.lines = lines;
     }
-    return invoice;
+    const invoices = this.findOne(invoice.id);
+    return invoices;
   }
 
   async findByUser(userId) {
-    const orders = await models.Invoice.findAll({
+    const invoices = await models.Invoice.findAll({
       where: {
         updatedUser: userId, // '$cashier.user.id$'
       },
@@ -24,7 +25,7 @@ class InvoicesService {
         {
           model: models.Client,
           as: 'client',
-          attributes: ['id', 'name', 'email', 'phone'],
+          attributes: ['id', 'dni', 'firstName', 'lastName'],
         },
         {
           model: models.Line,
@@ -36,7 +37,7 @@ class InvoicesService {
         ['id', 'DESC'],
       ]
     });
-    return orders;
+    return invoices;
   }
 
   async find(query) {
@@ -74,7 +75,20 @@ class InvoicesService {
   }
 
   async findOne(id) {
-    const invoice = await models.Invoice.findByPk(id);
+    const invoice = await models.Invoice.findByPk(id, {
+      include: [
+        {
+          model: models.Client,
+          as: 'client',
+          attributes: ['id', 'dni', 'firstName', 'lastName'],
+        },
+        {
+          model: models.Line,
+          as: 'lines',
+          attributes: ['id', 'description', 'amount'],
+        }
+      ],
+    });
     if (!invoice) {
       throw boom.notFound('invoice not found');
     }
@@ -83,7 +97,18 @@ class InvoicesService {
 
   async update(id, changes) {
     const invoice = await this.findOne(id);
-    const rta = await invoice.update(changes);
+    const { lines, ...newChanges } = changes;
+    await invoice.update(newChanges);
+    const newLines = lines.map(line => ({ ...line, invoiceId: invoice.id }));
+    for(const item of newLines) {
+      const line = await models.Line.findByPk(item.id);
+      if (line) {
+        await line.update(item);
+      } else {
+        await models.Line.create(item);
+      }
+    }
+    const rta = this.findOne(invoice.id);
     return rta;
   }
 

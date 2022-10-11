@@ -21,9 +21,9 @@ class AuthService {
     }
     const isMatch = await this.validatePassword(password, user.password);
     if (!isMatch) {
-      throw boom.unauthorized();;
+      throw boom.unauthorized();
     }
-    // delete user.dataValues.password;
+    delete user.dataValues.password;
     return user;
   }
 

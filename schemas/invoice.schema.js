@@ -8,9 +8,9 @@ const amount = Joi.number().integer();
 const limit = Joi.number().integer();
 const offset = Joi.number().integer();
 
-
 const linesSchema = Joi.array().items(
   Joi.object({
+    id,
     description: description.required(),
     amount: amount.required(),
   })

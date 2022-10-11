@@ -28,7 +28,7 @@ class UsersService {
         },
       ],
       order: [
-        ['id', 'DESC'],
+        ['id', 'ASC'],
       ]
     });
     return users;
@@ -67,7 +67,7 @@ class UsersService {
 
   async findByEmail(email) {
     const user = await models.User.findOne({
-      attributes: ['id', 'email', 'role', 'createdAt'],
+      attributes: ['id', 'email', 'role', 'password'],
       where: {
         email,
       },
